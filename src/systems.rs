@@ -229,13 +229,12 @@ pub fn update_button_colours(
 }
 
 pub fn handle_gameover_popup_buttons(
-    #[allow(unused_mut, unused_variables)] mut commands: Commands,
+    mut commands: Commands,
     mut grid: ResMut<Grid>,
     mut button_query: Query<(&Interaction, &Name), (Changed<Interaction>, With<Button>)>,
     mut game_over_query: Query<Entity, With<GameoverPopup>>,
     mut grid_updated_event: EventWriter<GridUpdatedEvent>,
 ) {
-    #[allow(unused_mut)]
     for (interaction, name) in &mut button_query {
         if name.to_string() == "Restart Button" {
             match *interaction {

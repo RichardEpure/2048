@@ -1,7 +1,5 @@
-#![allow(dead_code)]
 use crate::components::*;
 use crate::constants::*;
-// use crate::grid::Grid;
 
 use bevy::prelude::*;
 
