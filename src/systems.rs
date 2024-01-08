@@ -126,31 +126,22 @@ pub fn handle_game_over(
             .spawn(gameover_popup_components.text)
             .insert(Name::new("Game Over Text"))
             .id();
-        let restart_button = commands
-            .spawn(gameover_popup_components.restart_button.container)
-            .insert(Name::new("Restart Button"))
-            .id();
-        let restart_text = commands
-            .spawn(gameover_popup_components.restart_button.text)
-            .insert(Name::new("Restart Text"))
-            .id();
-        let exit_button = commands
-            .spawn(gameover_popup_components.exit_button.container)
-            .insert(Name::new("Exit Button"))
-            .id();
-        let exit_text = commands
-            .spawn(gameover_popup_components.exit_button.text)
-            .insert(Name::new("Exit Text"))
-            .id();
+
         commands
-            .entity(restart_button)
-            .push_children(&[restart_text]);
-        commands.entity(exit_button).push_children(&[exit_text]);
-        commands.entity(game_over_popup).push_children(&[
-            game_over_text,
-            restart_button,
-            exit_button,
-        ]);
+            .entity(game_over_popup)
+            .push_children(&[game_over_text]);
+
+        for ButtonComponents { container, text } in gameover_popup_components.buttons.into_iter() {
+            let button_container = commands.spawn(container).id();
+            let button_text = commands.spawn(text).id();
+
+            commands
+                .entity(button_container)
+                .push_children(&[button_text]);
+            commands
+                .entity(game_over_popup)
+                .push_children(&[button_container]);
+        }
     }
 }
 
@@ -228,26 +219,26 @@ pub fn update_button_colours(
     }
 }
 
-pub fn handle_gameover_popup_buttons(
+pub fn handle_popup_buttons(
     mut commands: Commands,
     mut grid: ResMut<Grid>,
     mut button_query: Query<(&Interaction, &Name), (Changed<Interaction>, With<Button>)>,
-    mut game_over_query: Query<Entity, With<GameoverPopup>>,
+    mut popup_query: Query<Entity, With<Popup>>,
     mut grid_updated_event: EventWriter<GridUpdatedEvent>,
 ) {
     for (interaction, name) in &mut button_query {
-        if name.to_string() == "Restart Button" {
+        if name.to_string() == "Restart" {
             match *interaction {
                 Interaction::Pressed => {
                     grid.reset();
                     grid_updated_event.send(GridUpdatedEvent());
-                    for entity in &mut game_over_query {
+                    for entity in &mut popup_query {
                         commands.entity(entity).despawn_recursive()
                     }
                 }
                 _ => (),
             }
-        } else if name.to_string() == "Exit Button" {
+        } else if name.to_string() == "Exit" {
             match *interaction {
                 Interaction::Pressed => {
                     std::process::exit(0);

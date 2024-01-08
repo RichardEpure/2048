@@ -4,7 +4,7 @@ use crate::constants::*;
 use bevy::prelude::*;
 
 pub struct ButtonComponents {
-    pub container: (ButtonBundle, ButtonColours),
+    pub container: (ButtonBundle, ButtonColours, Name),
     pub text: TextBundle,
 }
 
@@ -13,14 +13,13 @@ pub struct TileComponents {
     pub text: (TextBundle, TilePosition),
 }
 
-pub struct GameoverPopupComponents {
-    pub container: (NodeBundle, GameoverPopup),
+pub struct PopupComponents {
+    pub container: (NodeBundle, Popup),
     pub text: TextBundle,
-    pub restart_button: ButtonComponents,
-    pub exit_button: ButtonComponents,
+    pub buttons: Vec<ButtonComponents>,
 }
 
-pub fn new_button(text: String, font: &Handle<Font>, colours: ButtonColours) -> ButtonComponents {
+pub fn new_button(text: &String, font: &Handle<Font>, colours: ButtonColours) -> ButtonComponents {
     return ButtonComponents {
         container: (
             ButtonBundle {
@@ -35,10 +34,11 @@ pub fn new_button(text: String, font: &Handle<Font>, colours: ButtonColours) -> 
                 ..default()
             },
             colours,
+            Name::new(text.clone()),
         ),
         text: TextBundle {
             text: Text::from_section(
-                text,
+                text.clone(),
                 TextStyle {
                     font: font.clone(),
                     font_size: 24.0,
@@ -130,8 +130,25 @@ pub fn new_scoreboard(value: u32, font: &Handle<Font>) -> (TextBundle, Scoreboar
     );
 }
 
-pub fn new_gameover_popup(font: &Handle<Font>) -> GameoverPopupComponents {
-    return GameoverPopupComponents {
+pub fn new_popup(
+    text: &String,
+    font: &Handle<Font>,
+    buttons: &Vec<(&String, ButtonColours)>,
+) -> PopupComponents {
+    let mut button_components: Vec<ButtonComponents> = vec![];
+    for (text, colours) in buttons.iter() {
+        button_components.push(new_button(
+            text,
+            font,
+            ButtonColours {
+                pressed: colours.pressed,
+                hover: colours.hover,
+                none: colours.none,
+            },
+        ))
+    }
+
+    return PopupComponents {
         container: (
             NodeBundle {
                 style: Style {
@@ -149,11 +166,11 @@ pub fn new_gameover_popup(font: &Handle<Font>) -> GameoverPopupComponents {
                 background_color: BACKGROUND_COLOUR.into(),
                 ..default()
             },
-            GameoverPopup,
+            Popup,
         ),
         text: TextBundle {
             text: Text::from_section(
-                "Game Over".to_string(),
+                text,
                 TextStyle {
                     font: font.clone(),
                     font_size: 48.0,
@@ -163,24 +180,32 @@ pub fn new_gameover_popup(font: &Handle<Font>) -> GameoverPopupComponents {
             .with_alignment(TextAlignment::Center),
             ..default()
         },
-        restart_button: new_button(
-            "Restart".to_string(),
-            font,
-            ButtonColours {
-                pressed: BUTTON_GREEN_PRESSED,
-                hover: BUTTON_GREEN_HOVER,
-                none: BUTTON_GREEN,
-            },
-        ),
-        exit_button: new_button(
-            "Exit".to_string(),
-            font,
-            ButtonColours {
-                pressed: BUTTON_RED_PRESSED,
-                hover: BUTTON_RED_HOVER,
-                none: BUTTON_RED,
-            },
-        ),
+        buttons: button_components,
     };
+}
+
+pub fn new_gameover_popup(font: &Handle<Font>) -> PopupComponents {
+    return new_popup(
+        &"Game Over".to_string(),
+        font,
+        &vec![
+            (
+                &"Restart".to_string(),
+                ButtonColours {
+                    pressed: BUTTON_GREEN_PRESSED.into(),
+                    hover: BUTTON_GREEN_HOVER.into(),
+                    none: BUTTON_GREEN.into(),
+                },
+            ),
+            (
+                &"Exit".to_string(),
+                ButtonColours {
+                    pressed: BUTTON_RED_PRESSED.into(),
+                    hover: BUTTON_RED_HOVER.into(),
+                    none: BUTTON_RED.into(),
+                },
+            ),
+        ],
+    );
 }
 

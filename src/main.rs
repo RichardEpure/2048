@@ -32,7 +32,7 @@ fn main() {
                 update_box_colours,
                 handle_game_over,
                 update_button_colours,
-                handle_gameover_popup_buttons,
+                handle_popup_buttons,
             ),
         )
         .run();

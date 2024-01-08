@@ -13,7 +13,7 @@ pub struct TilePosition {
 pub struct Scoreboard;
 
 #[derive(Component)]
-pub struct GameoverPopup;
+pub struct Popup;
 
 #[derive(Component)]
 pub struct ButtonColours {
