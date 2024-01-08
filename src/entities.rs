@@ -176,9 +176,9 @@ pub fn new_gameover_popup(font: &Handle<Font>) -> GameoverPopupComponents {
             "Exit".to_string(),
             font,
             ButtonColours {
-                pressed: BUTTON_GREEN_PRESSED,
-                hover: BUTTON_GREEN_HOVER,
-                none: BUTTON_GREEN,
+                pressed: BUTTON_RED_PRESSED,
+                hover: BUTTON_RED_HOVER,
+                none: BUTTON_RED,
             },
         ),
     };
