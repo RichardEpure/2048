@@ -15,6 +15,9 @@ pub struct Scoreboard;
 #[derive(Component)]
 pub struct Popup;
 
+#[derive(Component)]
+pub struct Menu;
+
 #[derive(Component, Copy, Clone)]
 pub struct ButtonColours {
     pub pressed: Color,

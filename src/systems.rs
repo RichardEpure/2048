@@ -143,12 +143,21 @@ pub fn handle_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     keys: Res<Input<KeyCode>>,
+    mut menu_query: Query<Entity, With<Menu>>,
 ) {
     if keys.just_released(KeyCode::Escape) {
+        if menu_query.iter().count() > 0 {
+            for entity in &mut menu_query {
+                commands.entity(entity).despawn_recursive();
+            }
+            return;
+        }
+
         let menu_popup_components = new_menu_popup(&asset_server.load(FONT_PATH));
         let menu_popup = commands
             .spawn(menu_popup_components.container)
             .insert(Name::new("Menu Popup"))
+            .insert(Menu)
             .id();
         let menu_text = commands
             .spawn(menu_popup_components.text)
