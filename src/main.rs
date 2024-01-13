@@ -34,6 +34,7 @@ fn main() {
                 handle_menu,
                 update_button_colours,
                 handle_popup_buttons,
+                debug_commands,
             ),
         )
         .run();

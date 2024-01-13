@@ -284,3 +284,31 @@ pub fn handle_popup_buttons(
     }
 }
 
+pub fn debug_commands(
+    mut evr_char: EventReader<ReceivedCharacter>,
+    keys: Res<Input<KeyCode>>,
+    mut string: Local<String>,
+    mut grid: ResMut<Grid>,
+) {
+    if keys.just_pressed(KeyCode::Return) {
+        println!("{}", &*string);
+        if &*string == "gameover" {
+            grid.state = vec![
+                vec![2u32, 4u32, 8u32, 16u32],
+                vec![32u32, 64u32, 128u32, 256u32],
+                vec![512u32, 1024u32, 2048u32, 4096u32],
+                vec![8192u32, 16384u32, 32768u32, 0u32],
+            ];
+        }
+        string.clear();
+    }
+    if keys.just_pressed(KeyCode::Back) {
+        string.pop();
+    }
+    for ev in evr_char.read() {
+        if !ev.char.is_control() {
+            string.push(ev.char);
+        }
+    }
+}
+
