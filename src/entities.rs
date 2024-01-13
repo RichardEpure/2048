@@ -1,5 +1,6 @@
 use crate::components::*;
 use crate::constants::*;
+use crate::enums::*;
 
 use bevy::prelude::*;
 
@@ -133,19 +134,11 @@ pub fn new_scoreboard(value: u32, font: &Handle<Font>) -> (TextBundle, Scoreboar
 pub fn new_popup(
     text: &String,
     font: &Handle<Font>,
-    buttons: &Vec<(&String, ButtonColours)>,
+    buttons: &Vec<(String, ButtonColours)>,
 ) -> PopupComponents {
     let mut button_components: Vec<ButtonComponents> = vec![];
     for (text, colours) in buttons.iter() {
-        button_components.push(new_button(
-            text,
-            font,
-            ButtonColours {
-                pressed: colours.pressed,
-                hover: colours.hover,
-                none: colours.none,
-            },
-        ))
+        button_components.push(new_button(text, font, *colours))
     }
 
     return PopupComponents {
@@ -190,7 +183,7 @@ pub fn new_gameover_popup(font: &Handle<Font>) -> PopupComponents {
         font,
         &vec![
             (
-                &"Restart".to_string(),
+                ButtonType::Restart.to_string(),
                 ButtonColours {
                     pressed: BUTTON_GREEN_PRESSED.into(),
                     hover: BUTTON_GREEN_HOVER.into(),
@@ -198,7 +191,40 @@ pub fn new_gameover_popup(font: &Handle<Font>) -> PopupComponents {
                 },
             ),
             (
-                &"Exit".to_string(),
+                ButtonType::Exit.to_string(),
+                ButtonColours {
+                    pressed: BUTTON_RED_PRESSED.into(),
+                    hover: BUTTON_RED_HOVER.into(),
+                    none: BUTTON_RED.into(),
+                },
+            ),
+        ],
+    );
+}
+
+pub fn new_menu_popup(font: &Handle<Font>) -> PopupComponents {
+    return new_popup(
+        &"2048".to_string(),
+        font,
+        &vec![
+            (
+                ButtonType::Continue.to_string(),
+                ButtonColours {
+                    pressed: BUTTON_GREEN_PRESSED.into(),
+                    hover: BUTTON_GREEN_HOVER.into(),
+                    none: BUTTON_GREEN.into(),
+                },
+            ),
+            (
+                ButtonType::Restart.to_string(),
+                ButtonColours {
+                    pressed: BUTTON_GREEN_PRESSED.into(),
+                    hover: BUTTON_GREEN_HOVER.into(),
+                    none: BUTTON_GREEN.into(),
+                },
+            ),
+            (
+                ButtonType::Exit.to_string(),
                 ButtonColours {
                     pressed: BUTTON_RED_PRESSED.into(),
                     hover: BUTTON_RED_HOVER.into(),

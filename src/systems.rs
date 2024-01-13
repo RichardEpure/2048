@@ -1,7 +1,7 @@
 use crate::components::*;
 use crate::constants::*;
 use crate::entities::*;
-use crate::enums::Direction;
+use crate::enums::*;
 use crate::grid::Grid;
 
 use bevy::{
@@ -22,12 +22,6 @@ pub fn setup(
     mut grid_updated_event: EventWriter<GridUpdatedEvent>,
 ) {
     grid.add_boxes(2);
-    grid.state = vec![
-        vec![2u32, 4u32, 8u32, 16u32],
-        vec![32u32, 64u32, 128u32, 256u32],
-        vec![512u32, 1024u32, 2048u32, 4096u32],
-        vec![8192u32, 16384u32, 32768u32, 0u32],
-    ];
 
     commands.spawn(Camera2dBundle::default());
 
@@ -77,22 +71,22 @@ pub fn update_grid(
         return;
     }
 
-    let mut direction: Option<Direction> = None;
+    let mut direction: Option<MoveDirection> = None;
 
     for event in key_evr.read() {
         match event.state {
             ButtonState::Pressed => match event.key_code {
                 Some(KeyCode::W) | Some(KeyCode::Up) => {
-                    direction = Some(Direction::Up);
+                    direction = Some(MoveDirection::Up);
                 }
                 Some(KeyCode::D) | Some(KeyCode::Right) => {
-                    direction = Some(Direction::Right);
+                    direction = Some(MoveDirection::Right);
                 }
                 Some(KeyCode::S) | Some(KeyCode::Down) => {
-                    direction = Some(Direction::Down);
+                    direction = Some(MoveDirection::Down);
                 }
                 Some(KeyCode::A) | Some(KeyCode::Left) => {
-                    direction = Some(Direction::Left);
+                    direction = Some(MoveDirection::Left);
                 }
                 _ => (),
             },
@@ -140,6 +134,38 @@ pub fn handle_game_over(
                 .push_children(&[button_text]);
             commands
                 .entity(game_over_popup)
+                .push_children(&[button_container]);
+        }
+    }
+}
+
+pub fn handle_menu(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    keys: Res<Input<KeyCode>>,
+) {
+    if keys.just_released(KeyCode::Escape) {
+        let menu_popup_components = new_menu_popup(&asset_server.load(FONT_PATH));
+        let menu_popup = commands
+            .spawn(menu_popup_components.container)
+            .insert(Name::new("Menu Popup"))
+            .id();
+        let menu_text = commands
+            .spawn(menu_popup_components.text)
+            .insert(Name::new("Menu text"))
+            .id();
+
+        commands.entity(menu_popup).push_children(&[menu_text]);
+
+        for ButtonComponents { container, text } in menu_popup_components.buttons.into_iter() {
+            let button_container = commands.spawn(container).id();
+            let button_text = commands.spawn(text).id();
+
+            commands
+                .entity(button_container)
+                .push_children(&[button_text]);
+            commands
+                .entity(menu_popup)
                 .push_children(&[button_container]);
         }
     }
@@ -227,7 +253,16 @@ pub fn handle_popup_buttons(
     mut grid_updated_event: EventWriter<GridUpdatedEvent>,
 ) {
     for (interaction, name) in &mut button_query {
-        if name.to_string() == "Restart" {
+        if name.to_string() == ButtonType::Continue.to_string() {
+            match *interaction {
+                Interaction::Pressed => {
+                    for entity in &mut popup_query {
+                        commands.entity(entity).despawn_recursive()
+                    }
+                }
+                _ => (),
+            }
+        } else if name.to_string() == ButtonType::Restart.to_string() {
             match *interaction {
                 Interaction::Pressed => {
                     grid.reset();
@@ -238,7 +273,7 @@ pub fn handle_popup_buttons(
                 }
                 _ => (),
             }
-        } else if name.to_string() == "Exit" {
+        } else if name.to_string() == ButtonType::Exit.to_string() {
             match *interaction {
                 Interaction::Pressed => {
                     std::process::exit(0);

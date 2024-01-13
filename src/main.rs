@@ -31,6 +31,7 @@ fn main() {
                 update_box_values,
                 update_box_colours,
                 handle_game_over,
+                handle_menu,
                 update_button_colours,
                 handle_popup_buttons,
             ),

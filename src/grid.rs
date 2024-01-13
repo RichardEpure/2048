@@ -130,25 +130,25 @@ impl Grid {
         return self.compress().merge().compress();
     }
 
-    pub fn move_in_dir(&mut self, direction: Direction) -> &mut Self {
+    pub fn move_in_dir(&mut self, direction: MoveDirection) -> &mut Self {
         match direction {
-            Direction::Left => {
+            MoveDirection::Left => {
                 self.move_left();
             }
-            Direction::Right => {
+            MoveDirection::Right => {
                 self.reverse().move_left().reverse();
             }
-            Direction::Up => {
+            MoveDirection::Up => {
                 self.transpose().move_left().transpose();
             }
-            Direction::Down => {
+            MoveDirection::Down => {
                 self.transpose().reverse().move_left().reverse().transpose();
             }
         }
         return self;
     }
 
-    pub fn update(&mut self, direction: Direction) -> bool {
+    pub fn update(&mut self, direction: MoveDirection) -> bool {
         let old_state = self.state.clone();
         self.move_in_dir(direction);
 
