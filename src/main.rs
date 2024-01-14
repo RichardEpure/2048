@@ -4,11 +4,13 @@ mod components;
 mod constants;
 mod entities;
 mod enums;
-mod grid;
+mod resources;
 mod systems;
 
 use constants::*;
-use grid::Grid;
+use enums::GameState;
+use resources::grid::Grid;
+use resources::Game;
 use systems::*;
 
 use bevy::prelude::*;
@@ -22,7 +24,11 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(ResourceInspectorPlugin::<Grid>::default())
+        .add_plugins(ResourceInspectorPlugin::<Game>::default())
         .insert_resource(Grid::new(GRID_SIZE))
+        .insert_resource(Game {
+            state: GameState::Play,
+        })
         .add_event::<GridUpdatedEvent>()
         .add_event::<GameoverEvent>()
         .add_systems(Startup, setup)
@@ -48,6 +54,9 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .insert_resource(Grid::new(GRID_SIZE))
+        .insert_resource(Game {
+            state: GameState::Play,
+        })
         .add_event::<GridUpdatedEvent>()
         .add_event::<GameoverEvent>()
         .add_systems(Startup, setup)

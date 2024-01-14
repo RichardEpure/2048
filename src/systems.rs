@@ -2,7 +2,8 @@ use crate::components::*;
 use crate::constants::*;
 use crate::entities::*;
 use crate::enums::*;
-use crate::grid::Grid;
+use crate::resources::grid::Grid;
+use crate::resources::Game;
 
 use bevy::{
     input::{keyboard::KeyboardInput, ButtonState},
@@ -63,11 +64,12 @@ pub fn setup(
 
 pub fn update_grid(
     mut grid: ResMut<Grid>,
+    game: Res<Game>,
     mut key_evr: EventReader<KeyboardInput>,
     mut grid_updated_event: EventWriter<GridUpdatedEvent>,
     mut gameover_event: EventWriter<GameoverEvent>,
 ) {
-    if grid.deadlocked {
+    if grid.deadlocked || game.state != GameState::Play {
         return;
     }
 
@@ -108,6 +110,7 @@ pub fn update_grid(
 pub fn handle_game_over(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    mut game: ResMut<Game>,
     mut gameover_event: EventReader<GameoverEvent>,
 ) {
     for _ in gameover_event.read() {
@@ -136,12 +139,15 @@ pub fn handle_game_over(
                 .entity(game_over_popup)
                 .push_children(&[button_container]);
         }
+
+        game.state = GameState::Gameover;
     }
 }
 
 pub fn handle_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    mut game: ResMut<Game>,
     keys: Res<Input<KeyCode>>,
     mut menu_query: Query<Entity, With<Menu>>,
 ) {
@@ -150,6 +156,7 @@ pub fn handle_menu(
             for entity in &mut menu_query {
                 commands.entity(entity).despawn_recursive();
             }
+            game.state = GameState::Play;
             return;
         }
 
@@ -177,6 +184,8 @@ pub fn handle_menu(
                 .entity(menu_popup)
                 .push_children(&[button_container]);
         }
+
+        game.state = GameState::Menu;
     }
 }
 
@@ -257,6 +266,7 @@ pub fn update_button_colours(
 pub fn handle_popup_buttons(
     mut commands: Commands,
     mut grid: ResMut<Grid>,
+    mut game: ResMut<Game>,
     mut button_query: Query<(&Interaction, &Name), (Changed<Interaction>, With<Button>)>,
     mut popup_query: Query<Entity, With<Popup>>,
     mut grid_updated_event: EventWriter<GridUpdatedEvent>,
@@ -268,6 +278,7 @@ pub fn handle_popup_buttons(
                     for entity in &mut popup_query {
                         commands.entity(entity).despawn_recursive()
                     }
+                    game.state = GameState::Play;
                 }
                 _ => (),
             }
@@ -279,6 +290,7 @@ pub fn handle_popup_buttons(
                     for entity in &mut popup_query {
                         commands.entity(entity).despawn_recursive()
                     }
+                    game.state = GameState::Play;
                 }
                 _ => (),
             }
