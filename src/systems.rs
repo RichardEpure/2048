@@ -305,7 +305,7 @@ pub fn handle_popup_buttons(
     }
 }
 
-#[cfg(debug_assertions)]
+#[cfg(feature = "debug-commands")]
 pub fn debug_commands(
     mut evr_char: EventReader<ReceivedCharacter>,
     keys: Res<Input<KeyCode>>,

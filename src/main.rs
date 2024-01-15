@@ -15,45 +15,26 @@ use systems::*;
 
 use bevy::prelude::*;
 
-#[cfg(debug_assertions)]
 fn main() {
-    use bevy_inspector_egui::quick::ResourceInspectorPlugin;
-    use bevy_inspector_egui::quick::WorldInspectorPlugin;
+    let mut app = App::new();
+    app.add_plugins(DefaultPlugins);
 
-    App::new()
-        .add_plugins(DefaultPlugins)
-        .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(ResourceInspectorPlugin::<Grid>::default())
-        .add_plugins(ResourceInspectorPlugin::<Game>::default())
-        .insert_resource(Grid::new(GRID_SIZE))
-        .insert_resource(Game {
-            state: GameState::Play,
-        })
-        .add_event::<GridUpdatedEvent>()
-        .add_event::<GameoverEvent>()
-        .add_systems(Startup, setup)
-        .add_systems(
-            Update,
-            (
-                update_grid,
-                update_scoreboard,
-                update_box_values,
-                update_box_colours,
-                handle_game_over,
-                handle_menu,
-                update_button_colours,
-                handle_popup_buttons,
-                debug_commands,
-            ),
-        )
-        .run();
-}
+    #[cfg(feature = "debug-inspector")]
+    {
+        use bevy_inspector_egui::quick::ResourceInspectorPlugin;
+        use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-#[cfg(not(debug_assertions))]
-fn main() {
-    App::new()
-        .add_plugins(DefaultPlugins)
-        .insert_resource(Grid::new(GRID_SIZE))
+        app.add_plugins(WorldInspectorPlugin::new())
+            .add_plugins(ResourceInspectorPlugin::<Grid>::default())
+            .add_plugins(ResourceInspectorPlugin::<Game>::default());
+    }
+
+    #[cfg(feature = "debug-commands")]
+    {
+        app.add_systems(Update, debug_commands);
+    }
+
+    app.insert_resource(Grid::new(GRID_SIZE))
         .insert_resource(Game {
             state: GameState::Play,
         })
